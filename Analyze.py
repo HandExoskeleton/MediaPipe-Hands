@@ -91,7 +91,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(21):
         plt.plot(list(zip(*totalDistCoord))[21], list(zip(*totalDistCoord))[i], label="Landmark " + str(i + 1))
 
-    plt.xlabel('Total Time (milli-seconds)')
+    plt.xlabel('Total Time (seconds)')
     plt.ylabel('Total Distance')
     plt.title('Total Distance per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -108,7 +108,7 @@ def process_coord(projName, csv_file, projDirectory):
 
     velocity = []
     for distances in total_distance:
-        landmark_velocity = [distances[0]]  # Starting velocity is the first distance value
+        landmark_velocity = [distances[1]]  # Starting velocity is the second distance value
         for i in range(1, len(distances)):
             delta_distance = distances[i] - distances[i - 1]  # Calculate change in distance
             delta_time = time[i] - time[i - 1]  # Calculate change in time
@@ -146,7 +146,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(21):
         plt.plot(time, velocity[i], label="Landmark " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Velocity')
     plt.title('Velocity per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -160,7 +160,7 @@ def process_coord(projName, csv_file, projDirectory):
     # Calculate acceleration
     acceleration = []
     for velocities in velocity:
-        landmark_acceleration = [velocities[0]]  # Starting acceleration is the first velocity value
+        landmark_acceleration = [velocities[1]]  # Starting acceleration is the second velocity value
         for i in range(1, len(velocities)):
             delta_velocity = velocities[i] - velocities[i - 1]  # Calculate change in velocity
             delta_time = time[i] - time[i - 1]  # Calculate change in time
@@ -198,7 +198,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(21):
         plt.plot(time, acceleration[i], label="Landmark " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Acceleration')
     plt.title('Acceleration per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -279,7 +279,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(len(joint_tuples)):
         plt.plot(time, [item[i] for item in joint_angs], label="Joint " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Joint Angle 1')
     plt.title('Joint Angles for Fingers')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -321,7 +321,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(len(knuckle_tuples)):
         plt.plot(time, [item[i] for item in knuckle_angs], label="Knuckle " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Joint Angle 1')
     plt.title('Joint Angles for Index Finger Lower Joint')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -351,8 +351,3 @@ def process_coord(projName, csv_file, projDirectory):
             # Do linear approximation of angular speed
             ang_acceleration[i-2].append((ang_speed[i-1][j]-ang_speed[i-2][j])/(time[i-1]-time[i-2]))
 
-    
-
-
-# Run analysis
-# process_coord("sample", os.path.join("sample", "sample" + "_Coordinates.csv"))

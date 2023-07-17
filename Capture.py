@@ -38,7 +38,7 @@ abstract_video = cv2.VideoWriter(os.path.join(projName, projName + '_AbstractLan
 landmarks_video = cv2.VideoWriter(os.path.join(projName, projName + '_Landmarks.mp4'), fourcc,
                                        20.0, (width, height))
 combined_video = cv2.VideoWriter(os.path.join(projName, projName + '_SideBySide.mp4'), fourcc,
-                                       20.0, (width * 3, height))
+                                       20.0, (width * 3, height*1))
 
 # Open files for writing
 file_left = open(os.path.join(projName+"/Left", projName + "_LeftHand_Coordinates.csv"), 'w', newline='')
