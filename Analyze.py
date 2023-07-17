@@ -4,7 +4,7 @@ import math
 import os
 import matplotlib.pyplot as plt
 
-def process_coord(projName, csv_file):
+def process_coord(projName, csv_file, projDirectory):
 
     # Open the CSV file for reading
     file = open(csv_file, 'r')
@@ -26,7 +26,7 @@ def process_coord(projName, csv_file):
     previous_row = None
 
     # Open a new CSV file for writing
-    output_file = open(os.path.join(projName, projName + "_Distance.csv"), 'w', newline='')
+    output_file = open(os.path.join(projDirectory, projName + "_Distance.csv"), 'w', newline='')
     writer = csv.writer(output_file)
 
     # Write header row
@@ -96,7 +96,7 @@ def process_coord(projName, csv_file):
     plt.title('Total Distance per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_TotalDistancePlot.png")
+    save_path = os.path.join(projDirectory, projName + "_TotalDistancePlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -116,7 +116,7 @@ def process_coord(projName, csv_file):
         velocity.append(landmark_velocity)  # Append velocity list for each landmark
 
     # Open a new CSV file for writing velocity
-    velocity_output_file = open(os.path.join(projName, projName + "_Velocity.csv"), 'w', newline='')
+    velocity_output_file = open(os.path.join(projDirectory, projName + "_Velocity.csv"), 'w', newline='')
     velocity_writer = csv.writer(velocity_output_file)
 
     # Write header row
@@ -151,7 +151,7 @@ def process_coord(projName, csv_file):
     plt.title('Velocity per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_VelocityPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_VelocityPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -168,7 +168,7 @@ def process_coord(projName, csv_file):
         acceleration.append(landmark_acceleration)  # Append acceleration list for each landmark
 
     # Open a new CSV file for writing acceleration
-    acceleration_output_file = open(os.path.join(projName, projName + "_Acceleration.csv"), 'w', newline='')
+    acceleration_output_file = open(os.path.join(projDirectory, projName + "_Acceleration.csv"), 'w', newline='')
     acceleration_writer = csv.writer(acceleration_output_file)
 
     # Write header row
@@ -203,7 +203,7 @@ def process_coord(projName, csv_file):
     plt.title('Acceleration per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_AccelerationPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_AccelerationPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
     
@@ -250,7 +250,7 @@ def process_coord(projName, csv_file):
             joint_angs[t].append(np.arctan2(Y, X)* 180 / np.pi) 
 
     # Open a new CSV file for writing joint angle
-    joint_angle_output_file = open(os.path.join(projName, projName + "_JointAngles.csv"), 'w', newline='')
+    joint_angle_output_file = open(os.path.join(projDirectory, projName + "_JointAngles.csv"), 'w', newline='')
     joint_angle_writer = csv.writer(joint_angle_output_file)
 
     # Write header row
@@ -284,7 +284,7 @@ def process_coord(projName, csv_file):
     plt.title('Joint Angles for Fingers')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_JointAngPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_JointAngPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -326,7 +326,7 @@ def process_coord(projName, csv_file):
     plt.title('Joint Angles for Index Finger Lower Joint')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_KnuckleAngPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_KnuckleAngPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
