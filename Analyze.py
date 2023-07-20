@@ -4,7 +4,7 @@ import math
 import os
 import matplotlib.pyplot as plt
 
-def process_coord(projName, csv_file):
+def process_coord(projName, csv_file, projDirectory):
 
     # Open the CSV file for reading
     file = open(csv_file, 'r')
@@ -19,6 +19,7 @@ def process_coord(projName, csv_file):
 
     # 2D array to hold landmark coordinates for simpler computation
     landmark_coords = []
+    
     # Skip the header row
     next(reader)
 
@@ -26,7 +27,7 @@ def process_coord(projName, csv_file):
     previous_row = None
 
     # Open a new CSV file for writing
-    output_file = open(os.path.join(projName, projName + "_Distance.csv"), 'w', newline='')
+    output_file = open(os.path.join(projDirectory, projName + "_Distance.csv"), 'w', newline='')
     writer = csv.writer(output_file)
 
     # Write header row
@@ -96,7 +97,7 @@ def process_coord(projName, csv_file):
     plt.title('Total Distance per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_TotalDistancePlot.png")
+    save_path = os.path.join(projDirectory, projName + "_TotalDistancePlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -116,7 +117,7 @@ def process_coord(projName, csv_file):
         velocity.append(landmark_velocity)  # Append velocity list for each landmark
 
     # Open a new CSV file for writing velocity
-    velocity_output_file = open(os.path.join(projName, projName + "_Velocity.csv"), 'w', newline='')
+    velocity_output_file = open(os.path.join(projDirectory, projName + "_Velocity.csv"), 'w', newline='')
     velocity_writer = csv.writer(velocity_output_file)
 
     # Write header row
@@ -151,7 +152,7 @@ def process_coord(projName, csv_file):
     plt.title('Velocity per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_VelocityPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_VelocityPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -168,7 +169,7 @@ def process_coord(projName, csv_file):
         acceleration.append(landmark_acceleration)  # Append acceleration list for each landmark
 
     # Open a new CSV file for writing acceleration
-    acceleration_output_file = open(os.path.join(projName, projName + "_Acceleration.csv"), 'w', newline='')
+    acceleration_output_file = open(os.path.join(projDirectory, projName + "_Acceleration.csv"), 'w', newline='')
     acceleration_writer = csv.writer(acceleration_output_file)
 
     # Write header row
@@ -203,7 +204,7 @@ def process_coord(projName, csv_file):
     plt.title('Acceleration per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_AccelerationPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_AccelerationPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
     
@@ -242,15 +243,16 @@ def process_coord(projName, csv_file):
             # Generate second vector for line segment formed by landmarks
             vec2 = np.subtract(landmark_array[t][joint[2]], landmark_array[t][joint[1]])
 
-            # Compute dot product:
+            # Compute cosine via dot product:
             X = np.dot(vec1, vec2) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
-
-            Y = np.sqrt(1- X **2)
+            
+            # Compute sine via cross product
+            Y = np.linalg.norm(np.cross(vec1, vec2)) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
             # Compute angle 
             joint_angs[t].append(np.arctan2(Y, X)* 180 / np.pi) 
 
     # Open a new CSV file for writing joint angle
-    joint_angle_output_file = open(os.path.join(projName, projName + "_JointAngles.csv"), 'w', newline='')
+    joint_angle_output_file = open(os.path.join(projDirectory, projName + "_JointAngles.csv"), 'w', newline='')
     joint_angle_writer = csv.writer(joint_angle_output_file)
 
     # Write header row
@@ -284,7 +286,7 @@ def process_coord(projName, csv_file):
     plt.title('Joint Angles for Fingers')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_JointAngPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_JointAngPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -309,10 +311,12 @@ def process_coord(projName, csv_file):
             # Project vec1 onto the plane
             vec1_proj = vec1 - (np.dot(normal_vec, vec1)/(np.linalg.norm(normal_vec) ** 2) * normal_vec)
 
-            # Compute dot product:
+            # Compute cosine via dot product:
             X = np.dot(vec1_proj, vec2) / np.linalg.norm(vec1_proj) / np.linalg.norm(vec2)
 
-            Y = np.sqrt(1- X **2)
+            # Compute sine via cross product:
+            Y = np.linalg.norm(np.cross(vec1_proj, vec2)) / np.linalg.norm(vec1_proj) / np.linalg.norm(vec2)
+
             # Compute angle from dot product formula
             knuckle_angs[t].append(np.arctan2(Y, X)* 180 / np.pi)
     
@@ -323,35 +327,155 @@ def process_coord(projName, csv_file):
 
     plt.xlabel('Time (milli-seconds)')
     plt.ylabel('Joint Angle 1')
-    plt.title('Joint Angles for Index Finger Lower Joint')
+    plt.title('Joint Angles for Knuckles')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_KnuckleAngPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_KnuckleAngPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
     # Calulate angular displacement for joints
-    ang_displacement = [[] for i in range(len(time)-1)]
+    ang_distance = [[] for i in range(len(time)-1)]
     for i in range(1, len(time)):
         for j in range(len(joint_tuples)):
             # Subtract angles 
-            ang_displacement[i-1].append(joint_angs[i][j] - joint_angs[i-1][j])
+            ang_distance[i-1].append(joint_angs[i][j] - joint_angs[i-1][j])
     
     # Calculate angular speed for joints
     ang_speed = [[] for i in range(len(time)-1)]
     for i in range(1, len(time)):
         for j in range(len(joint_tuples)):
             # Do linear approximation of angular speed
-            ang_speed[i-1].append(ang_displacement[i-1][j]/(time[i]-time[i-1]))
+            ang_speed[i-1].append(ang_distance[i-1][j]/(time[i]-time[i-1]))
     
     # Calculate angular acceleration for joints
     ang_acceleration = [[] for i in range(len(time)-2)]
     for i in range(2, len(time)):
         for j in range(len(joint_tuples)):
-            # Do linear approximation of angular speed
+            # Do linear approximation of angular acceleration
             ang_acceleration[i-2].append((ang_speed[i-1][j]-ang_speed[i-2][j])/(time[i-1]-time[i-2]))
 
+
+    # Plot Angular Distance Graph
+    plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
+
+    for i in range(len(joint_tuples)-1):
+        plt.plot(time[1:len(time)], [item[i] for item in ang_distance], label="Joint " + str(i + 1))
+
+    plt.xlabel('Time (milli-seconds)')
+    plt.ylabel('Angular Distance')
+    plt.title('Angular Distance for Fingers')
+    plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
+    plt.subplots_adjust(right=0.7)
+    save_path = os.path.join(projDirectory, projName + "_AngDistPlot.png")
+    plt.savefig(save_path)  # Save plot
+    plt.show()
+
+    # Open a new CSV file for writing angular distance
+    joint_dist_output_file = open(os.path.join(projDirectory, projName + "_AngDist.csv"), 'w', newline='')
+    joint_dist_writer = csv.writer(joint_dist_output_file)
+
+    # Write header row
+    joint_dist_header = []
+    for i in range(len(joint_tuples)):
+        joint_dist_header.append("Joint " + str(i + 1))
+    joint_dist_header.extend(["Time"])
+    joint_dist_writer.writerow(joint_dist_header)
+
+    # Write joint angle data to the CSV file
+    # Joint Dist has one less entry than time array
+    for i in range(len(time)-1):
+        joint_dist_row = []
+        for j in range(len(joint_tuples)):
+            if j < len(ang_distance):  # Add this condition to check if j is within the valid range
+                joint_dist_row.append(ang_distance[i][j])
+            else:
+                print("Index out of range: j =", j)
+        joint_dist_row.append(time[i+1])
+        joint_dist_writer.writerow(joint_dist_row)
+    # Close the file
+    joint_dist_output_file.close()
+
     
+    # Plot Angular Speed Graph
+    plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
+
+    for i in range(len(joint_tuples)-1):
+        plt.plot(time[1:len(time)], [item[i] for item in ang_speed], label="Joint " + str(i + 1))
+
+    plt.xlabel('Time (milli-seconds)')
+    plt.ylabel('Angular Speed')
+    plt.title('Angular Speed of Joints')
+    plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
+    plt.subplots_adjust(right=0.7)
+    save_path = os.path.join(projDirectory, projName + "_AngSpeedPlot.png")
+    plt.savefig(save_path)  # Save plot
+    plt.show()
+
+    # Open a new CSV file for writing angular speed
+    joint_speed_output_file = open(os.path.join(projDirectory, projName + "_AngSpeed.csv"), 'w', newline='')
+    joint_speed_writer = csv.writer(joint_speed_output_file)
+
+    # Write header row
+    joint_speed_header = []
+    for i in range(len(joint_tuples)):
+        joint_speed_header.append("Joint " + str(i + 1))
+    joint_speed_header.extend(["Time"])
+    joint_speed_writer.writerow(joint_speed_header)
+
+    # Write angular speed data to the CSV file
+    # ang_speed has one less entry than time array
+    for i in range(len(time)-1):
+        joint_speed_row = []
+        for j in range(len(joint_tuples)):
+            if j < len(ang_speed):  # Add this condition to check if j is within the valid range
+                joint_speed_row.append(ang_speed[i][j])
+            else:
+                print("Index out of range: j =", j)
+        joint_speed_row.append(time[i+1])
+        joint_speed_writer.writerow(joint_speed_row)
+    # Close the file
+    joint_speed_output_file.close()
+
+    '''# Plot Angular Acceleration Graph
+    plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
+
+    for i in range(len(joint_tuples)-1):
+        plt.plot(time[2:len(time)], [item[i] for item in ang_acceleration], label="Joint " + str(i + 1))
+
+    plt.xlabel('Time (milli-seconds)')
+    plt.ylabel('Angular Acceleration')
+    plt.title('Angular Acceleration of Joints')
+    plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
+    plt.subplots_adjust(right=0.7)
+    save_path = os.path.join(projName, projName + "_AngAccelPlot.png")
+    plt.savefig(save_path)  # Save plot
+    plt.show()
+
+    # Open a new CSV file for writing angular acceleration
+    joint_acceleration_output_file = open(os.path.join(projName, projName + "_AngAccel.csv"), 'w', newline='')
+    joint_acceleration_writer = csv.writer(joint_acceleration_output_file)
+
+    # Write header row
+    joint_acceleration_header = []
+    for i in range(len(joint_tuples)):
+        joint_acceleration_header.append("Joint " + str(i + 1))
+    joint_acceleration_header.extend(["Time"])
+    joint_acceleration_writer.writerow(joint_acceleration_header)
+
+    # Write angular acceleration data to the CSV file
+    # ang_acceleration has two less entries than time array
+    for i in range(len(time)-2):
+        joint_acceleration_row = []
+        for j in range(len(joint_tuples)):
+            if j < len(ang_acceleration):  # Add this condition to check if j is within the valid range
+                joint_acceleration_row.append(ang_acceleration[i][j])
+            else:
+                print("Index out of range: j =", j)
+        joint_acceleration_row.append(time[i+2])
+        joint_acceleration_writer.writerow(joint_acceleration_row)
+    # Close the file
+    joint_acceleration_output_file.close()'''
 
 
 # Run analysis
