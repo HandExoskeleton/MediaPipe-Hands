@@ -9,6 +9,17 @@ import time
 # Prompt user for file name
 projName = input("Enter project name: ")
 
+# Prompt user for input type
+input_choice = 0
+while input_choice != "1" and input_choice != "2":
+    input_choice = input("Enter 1 for live feed and 2 for video: ")
+
+# Establish input type
+if input_choice == "1":
+    input_type = 0
+else: # 2
+    input_type = input("Enter video file path: ")
+
 # Create a directory with the project name
 os.makedirs(projName, exist_ok=True)
 os.makedirs(projName+"/Left", exist_ok=True)
@@ -20,7 +31,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
 # Open video capture
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(input_type)
 
 # Record start time
 startTime = time.time()
@@ -66,6 +77,8 @@ while True:
 
     # Flip the frame horizontally
     frame = cv2.flip(frame, 1)
+    if input_type != 0: # Video input -> flip again
+        frame = cv2.flip(frame, 1)
     normal_frame = frame.copy()
 
     # Convert frame to RGB
