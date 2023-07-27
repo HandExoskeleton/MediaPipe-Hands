@@ -89,11 +89,11 @@ def process_coord(projName, csv_file, projDirectory):
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     for i in range(21):
-        plt.plot(list(zip(*totalDistCoord))[21], list(zip(*totalDistCoord))[i], label="Landmark " + str(i + 1))
+        plt.plot(list(zip(*totalDistCoord))[21], list(zip(*totalDistCoord))[i], label="Pos " + str(i + 1))
 
     plt.xlabel('Total Time (seconds)')
-    plt.ylabel('Total Distance')
-    plt.title('Total Distance per Landmark')
+    plt.ylabel('Total Distance (mm)')
+    plt.title('Total Distance per Pos')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
     save_path = os.path.join(projDirectory, projName + "_TotalDistancePlot.png")
@@ -116,7 +116,7 @@ def process_coord(projName, csv_file, projDirectory):
         velocity.append(landmark_velocity)  # Append velocity list for each landmark
 
     # Open a new CSV file for writing velocity
-    velocity_output_file = open(os.path.join(projDirectory, projName + "_Velocity.csv"), 'w', newline='')
+    velocity_output_file = open(os.path.join(projDirectory, projName + "_Speed.csv"), 'w', newline='')
     velocity_writer = csv.writer(velocity_output_file)
 
     # Write header row
@@ -144,14 +144,14 @@ def process_coord(projName, csv_file, projDirectory):
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     for i in range(21):
-        plt.plot(time, velocity[i], label="Landmark " + str(i + 1))
+        plt.plot(time, velocity[i], label="Pos " + str(i + 1))
 
     plt.xlabel('Time (seconds)')
-    plt.ylabel('Velocity')
-    plt.title('Velocity per Landmark')
+    plt.ylabel('Speed (mm/sec)')
+    plt.title('Speed per Pos')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projDirectory, projName + "_VelocityPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_SpeedPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -196,11 +196,11 @@ def process_coord(projName, csv_file, projDirectory):
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     for i in range(21):
-        plt.plot(time, acceleration[i], label="Landmark " + str(i + 1))
+        plt.plot(time, acceleration[i], label="Pos " + str(i + 1))
 
     plt.xlabel('Time (seconds)')
-    plt.ylabel('Acceleration')
-    plt.title('Acceleration per Landmark')
+    plt.ylabel('Acceleration (mm/sec^2)')
+    plt.title('Acceleration per Pos')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
     save_path = os.path.join(projDirectory, projName + "_AccelerationPlot.png")
