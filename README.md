@@ -72,4 +72,4 @@ After installing all dependencies, please run the following command:
 The user will have the option of running the algorithm on live video feed or on a video file.
 ## Acknowledgments
 
-We would like to thank Dr. Mili Shah, The Cooper Union, and NIST for their support.
+We would like to thank our advisor Dr. Mili Shah, The Cooper Union, and NIST for their support.
