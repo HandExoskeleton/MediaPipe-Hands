@@ -437,7 +437,7 @@ def process_coord(projName, csv_file, projDirectory):
     # Close the file
     joint_speed_output_file.close()
 
-    '''# Plot Angular Acceleration Graph
+    # Plot Angular Acceleration Graph
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     for i in range(len(joint_tuples)-1):
@@ -448,12 +448,12 @@ def process_coord(projName, csv_file, projDirectory):
     plt.title('Angular Acceleration of Joints')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projName, projName + "_AngAccelPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_AngAccelPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
     # Open a new CSV file for writing angular acceleration
-    joint_acceleration_output_file = open(os.path.join(projName, projName + "_AngAccel.csv"), 'w', newline='')
+    joint_acceleration_output_file = open(os.path.join(projDirectory, projName + "_AngAccel.csv"), 'w', newline='')
     joint_acceleration_writer = csv.writer(joint_acceleration_output_file)
 
     # Write header row
@@ -475,7 +475,7 @@ def process_coord(projName, csv_file, projDirectory):
         joint_acceleration_row.append(time[i+2])
         joint_acceleration_writer.writerow(joint_acceleration_row)
     # Close the file
-    joint_acceleration_output_file.close()'''
+    joint_acceleration_output_file.close()
 
 
 # Run analysis
