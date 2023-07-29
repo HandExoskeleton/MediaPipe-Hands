@@ -92,7 +92,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(21):
         plt.plot(list(zip(*totalDistCoord))[21], list(zip(*totalDistCoord))[i], label="Landmark " + str(i + 1))
 
-    plt.xlabel('Total Time (milli-seconds)')
+    plt.xlabel('Total Time (seconds)')
     plt.ylabel('Total Distance')
     plt.title('Total Distance per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -147,7 +147,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(21):
         plt.plot(time, velocity[i], label="Landmark " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Velocity')
     plt.title('Velocity per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -199,7 +199,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(21):
         plt.plot(time, acceleration[i], label="Landmark " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Acceleration')
     plt.title('Acceleration per Landmark')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -251,6 +251,40 @@ def process_coord(projName, csv_file, projDirectory):
             # Compute angle 
             joint_angs[t].append(np.arctan2(Y, X)* 180 / np.pi) 
 
+
+
+    #Compute the joint angles for the knuckles
+    knuckle_tuples = [(1, 2, 3), (0, 5, 6), (0, 9, 10), (0, 13, 14), (0, 17, 18)]
+    #knuckle_angs = [[] for i in range(len(time))]
+    # Compute joint angle for knuckles, a bit more complicated
+    for t in range(len(time)):
+        for joint in knuckle_tuples:
+            # Generate first vector for line segment formed by landmarks (pointing towards the base of the hand)
+            vec1 = np.subtract(landmark_array[t][joint[0]], landmark_array[t][joint[1]])
+
+            # Generate second vector for line segment formed by landmarks
+            vec2 = np.subtract(landmark_array[t][joint[2]], landmark_array[t][joint[1]])
+
+            # Generate third vector for line segment formed by the next two landmarks after vec2
+            vec3 = np.subtract(landmark_array[t][joint[2]+1], landmark_array[t][joint[2]])
+
+            # Generate plane formed by vec2 and vec3
+            normal_vec = np.cross(vec2, vec3)
+
+            # Project vec1 onto the plane
+            vec1_proj = vec1 - (np.dot(normal_vec, vec1)/(np.linalg.norm(normal_vec) ** 2) * normal_vec)
+
+            # Compute cosine via dot product:
+            X = np.dot(vec1_proj, vec2) / np.linalg.norm(vec1_proj) / np.linalg.norm(vec2)
+
+            # Compute sine via cross product:
+            Y = np.linalg.norm(np.cross(vec1_proj, vec2)) / np.linalg.norm(vec1_proj) / np.linalg.norm(vec2)
+
+            # Compute angle from dot product formula
+            joint_angs[t].append(np.arctan2(Y, X)* 180 / np.pi)
+    
+    joint_tuples.extend(knuckle_tuples)
+
     # Open a new CSV file for writing joint angle
     joint_angle_output_file = open(os.path.join(projDirectory, projName + "_JointAngles.csv"), 'w', newline='')
     joint_angle_writer = csv.writer(joint_angle_output_file)
@@ -281,7 +315,7 @@ def process_coord(projName, csv_file, projDirectory):
     for i in range(len(joint_tuples)):
         plt.plot(time, [item[i] for item in joint_angs], label="Joint " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Joint Angle 1')
     plt.title('Joint Angles for Fingers')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -290,79 +324,35 @@ def process_coord(projName, csv_file, projDirectory):
     plt.savefig(save_path)  # Save plot
     plt.show()
 
-    #Compute the joint angles for the knuckles
-    knuckle_tuples = [(1, 2, 3), (0, 5, 6), (0, 9, 10), (0, 13, 14), (0, 17, 18)]
-    knuckle_angs = [[] for i in range(len(time))]
-    # Compute joint angle for knuckles, a bit more complicated
-    for t in range(len(time)):
-        for joint in knuckle_tuples:
-            # Generate first vector for line segment formed by landmarks (pointing towards the base of the hand)
-            vec1 = np.subtract(landmark_array[t][joint[0]], landmark_array[t][joint[1]])
-
-            # Generate second vector for line segment formed by landmarks
-            vec2 = np.subtract(landmark_array[t][joint[2]], landmark_array[t][joint[1]])
-
-            # Generate third vector for line segment formed by the next two landmarks after vec2
-            vec3 = np.subtract(landmark_array[t][joint[2]+1], landmark_array[t][joint[2]])
-
-            # Generate plane formed by vec2 and vec3
-            normal_vec = np.cross(vec2, vec3)
-
-            # Project vec1 onto the plane
-            vec1_proj = vec1 - (np.dot(normal_vec, vec1)/(np.linalg.norm(normal_vec) ** 2) * normal_vec)
-
-            # Compute cosine via dot product:
-            X = np.dot(vec1_proj, vec2) / np.linalg.norm(vec1_proj) / np.linalg.norm(vec2)
-
-            # Compute sine via cross product:
-            Y = np.linalg.norm(np.cross(vec1_proj, vec2)) / np.linalg.norm(vec1_proj) / np.linalg.norm(vec2)
-
-            # Compute angle from dot product formula
-            knuckle_angs[t].append(np.arctan2(Y, X)* 180 / np.pi)
-    
-    # Plot Knuckle Angle Graph for Thumb Knuckle
-    plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
-    for i in range(len(knuckle_tuples)):
-        plt.plot(time, [item[i] for item in knuckle_angs], label="Knuckle " + str(i + 1))
-
-    plt.xlabel('Time (milli-seconds)')
-    plt.ylabel('Joint Angle 1')
-    plt.title('Joint Angles for Knuckles')
-    plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
-    plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projDirectory, projName + "_KnuckleAngPlot.png")
-    plt.savefig(save_path)  # Save plot
-    plt.show()
-
     # Calulate angular displacement for joints
     ang_distance = [[] for i in range(len(time)-1)]
     for i in range(1, len(time)):
         for j in range(len(joint_tuples)):
             # Subtract angles 
-            ang_distance[i-1].append(joint_angs[i][j] - joint_angs[i-1][j])
+            ang_distance[i-1].append(np.abs(joint_angs[i][j] - joint_angs[i-1][j]))
     
-    # Calculate angular speed for joints
-    ang_speed = [[] for i in range(len(time)-1)]
+    # Calculate angular velocity for joints
+    ang_velocity = [[] for i in range(len(time)-1)]
     for i in range(1, len(time)):
         for j in range(len(joint_tuples)):
-            # Do linear approximation of angular speed
-            ang_speed[i-1].append(ang_distance[i-1][j]/(time[i]-time[i-1]))
+            # Do linear approximation of angular velocity
+            ang_velocity[i-1].append(ang_distance[i-1][j]/(time[i]-time[i-1]))
     
     # Calculate angular acceleration for joints
     ang_acceleration = [[] for i in range(len(time)-2)]
     for i in range(2, len(time)):
         for j in range(len(joint_tuples)):
             # Do linear approximation of angular acceleration
-            ang_acceleration[i-2].append((ang_speed[i-1][j]-ang_speed[i-2][j])/(time[i-1]-time[i-2]))
+            ang_acceleration[i-2].append((ang_velocity[i-1][j]-ang_velocity[i-2][j])/(time[i-1]-time[i-2]))
 
 
     # Plot Angular Distance Graph
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
-    for i in range(len(joint_tuples)-1):
+    for i in range(len(joint_tuples)):
         plt.plot(time[1:len(time)], [item[i] for item in ang_distance], label="Joint " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
+    plt.xlabel('Time (seconds)')
     plt.ylabel('Angular Distance')
     plt.title('Angular Distance for Fingers')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
@@ -397,58 +387,83 @@ def process_coord(projName, csv_file, projDirectory):
     joint_dist_output_file.close()
 
     
-    # Plot Angular Speed Graph
+    # Plot Angular Velocity Graph
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
-    for i in range(len(joint_tuples)-1):
-        plt.plot(time[1:len(time)], [item[i] for item in ang_speed], label="Joint " + str(i + 1))
+    for i in range(len(joint_tuples)):
+        plt.plot(time[1:len(time)], [item[i] for item in ang_velocity], label="Joint " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
-    plt.ylabel('Angular Speed')
-    plt.title('Angular Speed of Joints')
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Angular Speed (deg/sec)')
+    plt.title('Angular Speed of All Joints')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
     save_path = os.path.join(projDirectory, projName + "_AngSpeedPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
-    # Open a new CSV file for writing angular speed
-    joint_speed_output_file = open(os.path.join(projDirectory, projName + "_AngSpeed.csv"), 'w', newline='')
-    joint_speed_writer = csv.writer(joint_speed_output_file)
+
+    # Plot Angular Velocity Graph for Joint 4
+    plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
+    plt.plot(time[1:len(time)], [item[3] for item in ang_velocity])
+
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Angular Speed (deg/secd)')
+    plt.title('Angular Speed of Joint 4')
+    plt.subplots_adjust(right=0.7)
+    save_path = os.path.join(projDirectory, projName + "_AngSpeed4Plot.png")
+    plt.savefig(save_path)  # Save plot
+    plt.show()
+
+    # Open a new CSV file for writing angular velocity
+    joint_velocity_output_file = open(os.path.join(projDirectory, projName + "_AngVel.csv"), 'w', newline='')
+    joint_velocity_writer = csv.writer(joint_velocity_output_file)
 
     # Write header row
-    joint_speed_header = []
+    joint_velocity_header = []
     for i in range(len(joint_tuples)):
-        joint_speed_header.append("Joint " + str(i + 1))
-    joint_speed_header.extend(["Time"])
-    joint_speed_writer.writerow(joint_speed_header)
+        joint_velocity_header.append("Joint " + str(i + 1))
+    joint_velocity_header.extend(["Time"])
+    joint_velocity_writer.writerow(joint_velocity_header)
 
-    # Write angular speed data to the CSV file
-    # ang_speed has one less entry than time array
+    # Write angular velocity data to the CSV file
+    # ang_velocity has one less entry than time array
     for i in range(len(time)-1):
-        joint_speed_row = []
+        joint_velocity_row = []
         for j in range(len(joint_tuples)):
-            if j < len(ang_speed):  # Add this condition to check if j is within the valid range
-                joint_speed_row.append(ang_speed[i][j])
+            if j < len(ang_velocity):  # Add this condition to check if j is within the valid range
+                joint_velocity_row.append(ang_velocity[i][j])
             else:
                 print("Index out of range: j =", j)
-        joint_speed_row.append(time[i+1])
-        joint_speed_writer.writerow(joint_speed_row)
+        joint_velocity_row.append(time[i+1])
+        joint_velocity_writer.writerow(joint_velocity_row)
     # Close the file
-    joint_speed_output_file.close()
+    joint_velocity_output_file.close()
 
     # Plot Angular Acceleration Graph
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
-    for i in range(len(joint_tuples)-1):
+    for i in range(len(joint_tuples)):
         plt.plot(time[2:len(time)], [item[i] for item in ang_acceleration], label="Joint " + str(i + 1))
 
-    plt.xlabel('Time (milli-seconds)')
-    plt.ylabel('Angular Acceleration')
-    plt.title('Angular Acceleration of Joints')
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Angular Acceleration (deg/sec^2)')
+    plt.title('Angular Acceleration of All Joints')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
     save_path = os.path.join(projDirectory, projName + "_AngAccelPlot.png")
+    plt.savefig(save_path)  # Save plot
+    plt.show()
+
+    # Plot Angular Acceleration Graph for Joint 4
+    plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
+    plt.plot(time[2:len(time)], [item[3] for item in ang_acceleration])
+
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Angular Acceleration (deg/sec^2)')
+    plt.title('Angular Acceleration of Joint 4')
+    plt.subplots_adjust(right=0.7)
+    save_path = os.path.join(projDirectory, projName + "_AngAccel4Plot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
