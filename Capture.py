@@ -80,6 +80,8 @@ while True:
 
     # Flip the frame horizontally
     frame = cv2.flip(frame, 1)
+    if input_type != 0: # Video input -> flip again
+        frame = cv2.flip(frame, 1)
     normal_frame = frame.copy()
 
     # Convert frame to RGB
@@ -107,7 +109,6 @@ while True:
         for hand_idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
             # Determine if it's the left or right hand
             handedness = results.multi_handedness[hand_idx].classification[0].label
-            
             # Draw landmarks on the frame
             mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
             mp_drawing.draw_landmarks(black_frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
@@ -224,6 +225,9 @@ while True:
                     delta_x, delta_y = velocity_vector
                     end_point = (curr_x + delta_x, curr_y + delta_y)
                     cv2.arrowedLine(black_frame, (curr_x, curr_y), end_point, (0, 0, 255), 2)
+
+                    # Draw velocity vectors on the frame
+                    cv2.arrowedLine(frame, (curr_x, curr_y), end_point, (0, 0, 255), 2)
 
             # Update previous_landmarks
             previous_landmarks[hand_idx] = landmark_row[:-1]
