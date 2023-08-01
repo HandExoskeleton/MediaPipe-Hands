@@ -19,7 +19,6 @@ def process_coord(projName, csv_file, projDirectory):
 
     # 2D array to hold landmark coordinates for simpler computation
     landmark_coords = []
-    
     # Skip the header row
     next(reader)
 
@@ -90,11 +89,11 @@ def process_coord(projName, csv_file, projDirectory):
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     for i in range(21):
-        plt.plot(list(zip(*totalDistCoord))[21], list(zip(*totalDistCoord))[i], label="Landmark " + str(i + 1))
+        plt.plot(list(zip(*totalDistCoord))[21], list(zip(*totalDistCoord))[i], label="Pos " + str(i + 1))
 
     plt.xlabel('Total Time (seconds)')
-    plt.ylabel('Total Distance')
-    plt.title('Total Distance per Landmark')
+    plt.ylabel('Total Distance (mm)')
+    plt.title('Total Distance per Pos')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
     save_path = os.path.join(projDirectory, projName + "_TotalDistancePlot.png")
@@ -109,7 +108,7 @@ def process_coord(projName, csv_file, projDirectory):
 
     velocity = []
     for distances in total_distance:
-        landmark_velocity = [distances[0]]  # Starting velocity is the first distance value
+        landmark_velocity = [distances[1]]  # Starting velocity is the second distance value
         for i in range(1, len(distances)):
             delta_distance = distances[i] - distances[i - 1]  # Calculate change in distance
             delta_time = time[i] - time[i - 1]  # Calculate change in time
@@ -117,7 +116,7 @@ def process_coord(projName, csv_file, projDirectory):
         velocity.append(landmark_velocity)  # Append velocity list for each landmark
 
     # Open a new CSV file for writing velocity
-    velocity_output_file = open(os.path.join(projDirectory, projName + "_Velocity.csv"), 'w', newline='')
+    velocity_output_file = open(os.path.join(projDirectory, projName + "_Speed.csv"), 'w', newline='')
     velocity_writer = csv.writer(velocity_output_file)
 
     # Write header row
@@ -145,14 +144,14 @@ def process_coord(projName, csv_file, projDirectory):
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     for i in range(21):
-        plt.plot(time, velocity[i], label="Landmark " + str(i + 1))
+        plt.plot(time, velocity[i], label="Pos " + str(i + 1))
 
     plt.xlabel('Time (seconds)')
-    plt.ylabel('Velocity')
-    plt.title('Velocity per Landmark')
+    plt.ylabel('Speed (mm/sec)')
+    plt.title('Speed per Pos')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
-    save_path = os.path.join(projDirectory, projName + "_VelocityPlot.png")
+    save_path = os.path.join(projDirectory, projName + "_SpeedPlot.png")
     plt.savefig(save_path)  # Save plot
     plt.show()
 
@@ -161,7 +160,7 @@ def process_coord(projName, csv_file, projDirectory):
     # Calculate acceleration
     acceleration = []
     for velocities in velocity:
-        landmark_acceleration = [velocities[0]]  # Starting acceleration is the first velocity value
+        landmark_acceleration = [velocities[1]]  # Starting acceleration is the second velocity value
         for i in range(1, len(velocities)):
             delta_velocity = velocities[i] - velocities[i - 1]  # Calculate change in velocity
             delta_time = time[i] - time[i - 1]  # Calculate change in time
@@ -197,11 +196,11 @@ def process_coord(projName, csv_file, projDirectory):
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     for i in range(21):
-        plt.plot(time, acceleration[i], label="Landmark " + str(i + 1))
+        plt.plot(time, acceleration[i], label="Pos " + str(i + 1))
 
     plt.xlabel('Time (seconds)')
-    plt.ylabel('Acceleration')
-    plt.title('Acceleration per Landmark')
+    plt.ylabel('Acceleration (mm/sec^2)')
+    plt.title('Acceleration per Pos')
     plt.legend(loc='upper left', bbox_to_anchor=(1.02, 1), borderaxespad=0.)
     plt.subplots_adjust(right=0.7)
     save_path = os.path.join(projDirectory, projName + "_AccelerationPlot.png")
@@ -250,8 +249,6 @@ def process_coord(projName, csv_file, projDirectory):
             Y = np.linalg.norm(np.cross(vec1, vec2)) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
             # Compute angle 
             joint_angs[t].append(np.arctan2(Y, X)* 180 / np.pi) 
-
-
 
     #Compute the joint angles for the knuckles
     knuckle_tuples = [(1, 2, 3), (0, 5, 6), (0, 9, 10), (0, 13, 14), (0, 17, 18)]
@@ -408,7 +405,7 @@ def process_coord(projName, csv_file, projDirectory):
     plt.plot(time[1:len(time)], [item[3] for item in ang_velocity])
 
     plt.xlabel('Time (seconds)')
-    plt.ylabel('Angular Speed (deg/secd)')
+    plt.ylabel('Angular Speed (deg/sec)')
     plt.title('Angular Speed of Joint 4')
     plt.subplots_adjust(right=0.7)
     save_path = os.path.join(projDirectory, projName + "_AngSpeed4Plot.png")
