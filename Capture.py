@@ -107,6 +107,20 @@ while True:
     if results.multi_hand_landmarks:
         # Iterate over each detected hand
         for hand_idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
+
+            # Get landmarks for the hand
+            hand_x = [landmark.x * frame.shape[1] for landmark in hand_landmarks.landmark]
+            hand_y = [landmark.y * frame.shape[0] for landmark in hand_landmarks.landmark]
+
+            # Calculate the bounding box coordinates
+            min_x = min(hand_x)
+            max_x = max(hand_x)
+            min_y = min(hand_y)
+            max_y = max(hand_y)
+
+            # Draw the bounding box with the correct color argument placement
+            cv2.rectangle(frame, (int(min_x), int(min_y)), (int(max_x), int(max_y)), (0, 255, 0), 2)
+
             # Determine if it's the left or right hand
             handedness = results.multi_handedness[hand_idx].classification[0].label
             # Draw landmarks on the frame
