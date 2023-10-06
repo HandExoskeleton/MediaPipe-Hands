@@ -6,7 +6,7 @@ import numpy as np
 from Analyze import process_coord
 import time
 
-# Prompt user for file name
+# Prompt user for the file name
 projName = input("Enter project name: ")
 
 # Prompt user for input type
