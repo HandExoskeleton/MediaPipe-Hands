@@ -16,7 +16,7 @@ while input_choice != "1" and input_choice != "2":
 
 # Establish input type
 if input_choice == "1":
-    input_type = 0
+    input_type = 1
 else: # 2
     input_type = input("Enter video file path: ")
 

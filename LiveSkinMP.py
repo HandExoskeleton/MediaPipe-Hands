@@ -9,17 +9,6 @@ import time
 # Prompt user for the file name
 projName = input("Enter project name: ")
 
-# Prompt user for input type
-input_choice = 0
-while input_choice != "1" and input_choice != "2":
-    input_choice = input("Enter 1 for live feed and 2 for video: ")
-
-# Establish input type
-if input_choice == "1":
-    input_type = 0
-else:  # 2
-    input_type = input("Enter video file path: ")
-
 # Create a directory with the project name
 os.makedirs(projName, exist_ok=True)
 os.makedirs(projName + "/Left", exist_ok=True)
@@ -31,7 +20,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
 # Open video capture
-cap = cv2.VideoCapture(input_type)
+cap = cv2.VideoCapture(1)
 
 # Get the video width and height
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -47,7 +36,6 @@ landmarks_video = cv2.VideoWriter(os.path.join(projName, projName + '_Landmarks.
                                   20.0, (width, height))
 combined_video = cv2.VideoWriter(os.path.join(projName, projName + '_SideBySide.mp4'), fourcc,
                                  20.0, (width * 4, height * 1))
-
 angle_video = cv2.VideoWriter(os.path.join(projName, projName + '_AngleSample.mp4'), fourcc, 20.0, (width, height))
 
 # Open files for writing
@@ -79,8 +67,6 @@ while True:
 
     # Flip the frame horizontally
     frame = cv2.flip(frame, 1)
-    if input_type != 0:  # Video input -> flip again
-        frame = cv2.flip(frame, 1)
     normal_frame = frame.copy()
 
     # Convert frame to RGB
@@ -166,24 +152,6 @@ while True:
                 cv2.putText(ang_frame, f"{theta}", (landmark_row[joint[1]][0], landmark_row[joint[1]][1]),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
-                '''# Test angular velocity vector 
-                # generate "finger plane"
-                norm = np.cross(vec2, vec1)
-                # cross product between normal vector and vec2
-                ang_vel_direction = np.cross(vec2, norm) 
-                # calculate magnitude of angular velocity, scale vector accordingly
-                # assuming that there is equal time between each frame, the difference in angle should be proportional to angular velocity!
-                ang_vel_magnitude = np.linalg.norm(prev_theta - theta) / 5
-                # Normalize
-                ang_vel = ang_vel_direction / np.linalg.norm(ang_vel_direction) * ang_vel_magnitude
-                # Calculate endpoint
-                end_point = np.subtract(np.array(landmark_row[joint[2]]), ang_vel)
-                start_point = landmark_row[joint[2]]
-                if prev_theta != 0:
-                    # Draw arrow 
-                    cv2.arrowedLine(ang_frame, (int(start_point[0]), int(start_point[1])), (int(end_point[0]), int(end_point[1])), (0, 255, 0), 2)
-                prev_theta = theta'''
-
             for joint in knuckle_tuples:
                 # Generate first vector for line segment formed by landmarks (pointing towards the base of the hand)
                 vec1 = np.subtract(landmark_row[joint[0]], landmark_row[joint[1]])
@@ -249,6 +217,19 @@ while True:
             # Update previous_landmarks
             previous_landmarks[hand_idx] = landmark_row[:-1]
 
+    # Convert frame to HSV color space
+    hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # Define the color range for dark objects (adjust these values as needed)
+    lower_dark = np.array([0, 0, 0])
+    upper_dark = np.array([180, 255, 50])
+
+    # Create a binary mask to isolate dark objects
+    dark_mask = cv2.inRange(hsv_frame, lower_dark, upper_dark)
+
+    # Replace the dark regions with a different color (e.g., skin tone in BGR format)
+    frame[dark_mask > 0] = [172, 219, 255]  # Change to the desired color (BGR color format)
+
     # Write frame to output videos based on handedness
     if results.multi_handedness:
         for handedness in results.multi_handedness:
@@ -266,7 +247,7 @@ while True:
 
     angle_video.write(ang_frame)
 
-    # Show the frame
+    # Display the frame
     cv2.imshow('MediaPipe Hands', frame)
 
     # Exit on 'q' press
