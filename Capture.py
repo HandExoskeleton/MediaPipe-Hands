@@ -26,7 +26,7 @@ os.makedirs(projName+"/Left", exist_ok=True)
 os.makedirs(projName+"/Right", exist_ok=True)
 
 # Initialize MediaPipe Hands
-hands = mp.solutions.hands.Hands(max_num_hands=2, min_detection_confidence=0.5, static_image_mode=False)
+hands = mp.solutions.hands.Hands(max_num_hands=2, min_detection_confidence=0.25, static_image_mode=False)
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 

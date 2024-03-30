@@ -46,8 +46,8 @@ while True:
     dark_mask = cv2.inRange(hsv_frame, lower_dark, upper_dark)
 
     # Replace the dark regions with a different color (e.g., skin tone in BGR format)
-    frame[dark_mask > 0] = [172, 219, 255]  # Change to skin tone (BGR color format)
-
+    frame[dark_mask > 0] += np.array([80, 100, 140], dtype=np.uint8)  # Change to skin tone (BGR color format)
+    # (114, 98, 55)
     # Write the frame with the replaced regions to the output video
     out.write(frame)
 
