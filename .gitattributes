@@ -1,0 +1,2 @@
+C:UsersericeOneDriveDesktopMediaPipe-Handsthesisangles_array.csv filter=lfs diff=lfs merge=lfs -text
+thesis/angles_array.csv filter=lfs diff=lfs merge=lfs -text
