@@ -31,7 +31,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
 # Open video capture
-cap = cv2.VideoCapture(input_type)
+cap = cv2.VideoCapture(0)
 
 # Get the video width and height
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -164,24 +164,7 @@ while True:
                 # Display joint angle on angle frame
                 cv2.putText(ang_frame, f"{theta}", (landmark_row[joint[1]][0], landmark_row[joint[1]][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
-                '''# Test angular velocity vector 
-                # generate "finger plane"
-                norm = np.cross(vec2, vec1)
-                # cross product between normal vector and vec2
-                ang_vel_direction = np.cross(vec2, norm) 
-                # calculate magnitude of angular velocity, scale vector accordingly
-                # assuming that there is equal time between each frame, the difference in angle should be proportional to angular velocity!
-                ang_vel_magnitude = np.linalg.norm(prev_theta - theta) / 5
-                # Normalize
-                ang_vel = ang_vel_direction / np.linalg.norm(ang_vel_direction) * ang_vel_magnitude
-                # Calculate endpoint
-                end_point = np.subtract(np.array(landmark_row[joint[2]]), ang_vel)
-                start_point = landmark_row[joint[2]]
-                if prev_theta != 0:
-                    # Draw arrow 
-                    cv2.arrowedLine(ang_frame, (int(start_point[0]), int(start_point[1])), (int(end_point[0]), int(end_point[1])), (0, 255, 0), 2)
-                prev_theta = theta'''
-            
+          
             for joint in knuckle_tuples:
                 # Generate first vector for line segment formed by landmarks (pointing towards the base of the hand)
                 vec1 = np.subtract(landmark_row[joint[0]], landmark_row[joint[1]])
