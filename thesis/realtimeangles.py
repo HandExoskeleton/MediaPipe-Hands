@@ -40,7 +40,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
 # Open video capture
-cap = cv2.VideoCapture(input_type)
+cap = cv2.VideoCapture(0)
 
 # Get the video width and height
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
